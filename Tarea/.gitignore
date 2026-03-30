@@ -1,0 +1,6 @@
+backend/tmp/
+backend/log/
+backend/.env
+frontend/.next/
+frontend/node_modules/
+.env
