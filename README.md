@@ -16,7 +16,10 @@ Task Manager lets you organize work into **Projects** and **Tasks**.
 - Add tasks to each project with title, description, priority and due date
 - Update task status in real time (Pending → In Progress → Completed)
 - Filter tasks by status and priority across all projects
-- View a global task list sorted by due date
+- View a global agenda grouped by due date: overdue, today, next 7 days, later, no date
+- Assign tasks to users and see each project's progress
+
+![Agenda view](docs/agenda.png)
 
 ---
 
@@ -26,7 +29,7 @@ Task Manager lets you organize work into **Projects** and **Tasks**.
 |-------|-----------|
 | Backend | Ruby on Rails 8.1.3 — API only mode |
 | Frontend | Next.js 16 — App Router + TypeScript |
-| UI | Material UI (MUI v5) |
+| UI | Material UI (MUI v7) with a custom theme |
 | Database | PostgreSQL 16 |
 | HTTP Client | Axios |
 | Forms | React Hook Form |
@@ -129,19 +132,21 @@ task-manager/
 │   │   └── seeds.rb
 │   ├── test/
 │   │   ├── models/           # 9 unit tests
-│   │   └── controllers/      # 3 integration tests
+│   │   └── controllers/      # 14 integration tests
 │   └── Dockerfile
 ├── frontend/                       # Next.js App
 │   ├── app/
 │   │   ├── layout.tsx
 │   │   ├── providers.tsx
-│   │   ├── projects/
-│   │   │   ├── page.tsx            # Projects list
-│   │   │   └── [id]/page.tsx       # Project detail + tasks
-│   │   └── tasks/
-│   │       └── page.tsx            # Global tasks view
+│   │   ├── theme.ts                # MUI theme: colours, type, component defaults
+│   │   ├── page.tsx                # Agenda: every task, grouped by due date
+│   │   └── projects/
+│   │       ├── page.tsx            # Projects list with progress
+│   │       └── [id]/page.tsx       # Project detail + its tasks
+│   ├── components/                 # Task list, status control, dialogs
 │   ├── lib/
-│   │   └── api.ts                  # Axios API client + TypeScript types
+│   │   ├── api.ts                  # Axios API client + TypeScript types
+│   │   └── tasks.ts                # Date parsing, grouping, labels
 │   └── Dockerfile
 ├── docker-compose.yml
 ├── .env.example
@@ -190,12 +195,20 @@ PUT     /api/v1/projects/:id       → update project
 DELETE  /api/v1/projects/:id       → delete project
 ```
 
+### Users
+
+```
+GET     /api/v1/users              → list users (id, name, email)
+```
+
 ### Tasks
 
 ```
 POST    /api/v1/projects/:id/tasks          → create task in project
 GET     /api/v1/tasks                       → list all tasks
-GET     /api/v1/tasks?status=X&priority=Y   → filter tasks
+GET     /api/v1/tasks?status=X&priority=Y   → filter tasks (422 for an unknown value)
+GET     /api/v1/tasks?page=2&per_page=50    → paginate (20 per page by default, 100 at most;
+                                              the total comes in the X-Total-Count header)
 PUT     /api/v1/tasks/:id                   → update task
 PATCH   /api/v1/tasks/:id/status            → update status only
 DELETE  /api/v1/tasks/:id                   → delete task
