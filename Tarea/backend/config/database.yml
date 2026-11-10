@@ -8,8 +8,11 @@ development:
   <<: *default
   database: taskmanager_development
 
+# Never run the tests against the development database: when DATABASE_URL points
+# at it (as in docker-compose), swap the database name for the test one.
 test:
   <<: *default
+  url: <%= ENV['DATABASE_URL']&.sub(/_development\z/, '_test') %>
   database: taskmanager_test
 
 production:

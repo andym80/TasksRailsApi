@@ -1,13 +1,23 @@
 class Api::V1::ProjectsController < ApplicationController
   before_action :set_project, only: [:show, :update, :destroy]
 
-def index
-  projects = Project.includes(:tasks).page(params[:page]).per(20)
-  render json: projects.as_json(include: { tasks: { only: [:id, :title, :status, :priority] } }), status: :ok
-end
+  def index
+    projects = paginate(Project.includes(:tasks, :user).order(:name))
+    render json: projects.as_json(
+      include: {
+        tasks: { only: [:id, :title, :status, :priority, :due_date] },
+        user: { only: [:id, :name] }
+      }
+    ), status: :ok
+  end
 
   def show
-    render json: @project.as_json(include: :tasks), status: :ok
+    render json: @project.as_json(
+      include: {
+        tasks: { include: { assigned_to: { only: [:id, :name] } } },
+        user: { only: [:id, :name] }
+      }
+    ), status: :ok
   end
 
   def create

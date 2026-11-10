@@ -1,22 +1,20 @@
 'use client';
 
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Toaster } from 'react-hot-toast';
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: { main: '#1976d2' },
-    secondary: { main: '#9c27b0' },
-  },
-});
+import theme, { colors } from './theme';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Toaster position="bottom-right" />
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: { background: colors.ink, color: '#fff', borderRadius: 8, fontSize: 15 },
+        }}
+      />
       {children}
     </ThemeProvider>
   );
